@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<p class="eyebrow">TESIS · INGENIERÍA EN SISTEMAS</p>
+<h1>Monitoreo hidropónico</h1>
+<p class="intro">Base local para el monitoreo, control PID y procesamiento visual de una granja hidropónica de pequeña escala.</p>
+<section class="panel">
+  <span class="badge">FASE 1</span>
+  <h2>Backend preparado</h2>
+  <p>Flask y SQLite están inicializados. Esta pantalla verifica la base del proyecto; todavía no recibe mediciones.</p>
+  <a class="button" href="{{ url_for('api.health') }}">Consultar estado del backend →</a>
+</section>
+<section class="grid" aria-label="Módulos previstos">
+  <article><h2>Sensores</h2><p>Sin lecturas. Simulación y MQTT pendientes.</p></article>
+  <article><h2>Control PID</h2><p>No implementado. No hay actuadores conectados.</p></article>
+  <article><h2>Visión vegetal</h2><p>Sin imágenes analizadas. OpenCV pendiente.</p></article>
+</section>
+<p class="note">Próxima fase: modelo de datos. La autenticación se incorporará en la fase 10.</p>
+{% endblock %}

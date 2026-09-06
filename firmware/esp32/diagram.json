@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "author": "Prototipo acad\u00e9mico",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot0",
+      "top": -100,
+      "left": 300,
+      "attrs": {
+        "value": "440"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "top": -20,
+      "left": 300,
+      "attrs": {
+        "value": "420"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot2",
+      "top": 60,
+      "left": 300,
+      "attrs": {
+        "value": "445"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot3",
+      "top": 140,
+      "left": 300,
+      "attrs": {
+        "value": "542"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot4",
+      "top": 220,
+      "left": 300,
+      "attrs": {
+        "value": "614"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot5",
+      "top": 300,
+      "left": 300,
+      "attrs": {
+        "value": "798"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led0",
+      "top": 0,
+      "left": -160,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r0",
+      "top": 35,
+      "left": -110,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 80,
+      "left": -160,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 115,
+      "left": -110,
+      "attrs": {
+        "value": "220"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "pot0:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "pot0:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot0:SIG",
+      "esp:34",
+      "green",
+      []
+    ],
+    [
+      "pot1:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "pot1:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot1:SIG",
+      "esp:35",
+      "green",
+      []
+    ],
+    [
+      "pot2:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "pot2:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot2:SIG",
+      "esp:32",
+      "green",
+      []
+    ],
+    [
+      "pot3:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "pot3:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot3:SIG",
+      "esp:33",
+      "green",
+      []
+    ],
+    [
+      "pot4:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "pot4:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot4:SIG",
+      "esp:36",
+      "green",
+      []
+    ],
+    [
+      "pot5:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "pot5:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "pot5:SIG",
+      "esp:39",
+      "green",
+      []
+    ],
+    [
+      "esp:18",
+      "r0:1",
+      "green",
+      []
+    ],
+    [
+      "r0:2",
+      "led0:A",
+      "green",
+      []
+    ],
+    [
+      "led0:C",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "esp:19",
+      "r1:1",
+      "green",
+      []
+    ],
+    [
+      "r1:2",
+      "led1:A",
+      "green",
+      []
+    ],
+    [
+      "led1:C",
+      "esp:GND.1",
+      "black",
+      []
+    ]
+  ]
+}

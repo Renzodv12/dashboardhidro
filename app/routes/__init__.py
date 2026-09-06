@@ -1,0 +1,1 @@
+"""Rutas organizadas mediante blueprints."""

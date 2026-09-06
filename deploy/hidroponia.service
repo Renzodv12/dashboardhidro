@@ -1,0 +1,20 @@
+[Unit]
+Description=Prototipo hidropónico Flask MQTT PID
+After=network-online.target mosquitto.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hidroponia
+WorkingDirectory=/opt/hidroponia
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/hidroponia/.venv/bin/python /opt/hidroponia/run.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
