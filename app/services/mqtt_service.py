@@ -4,6 +4,7 @@ import json
 import threading
 import time
 import uuid
+import hashlib
 
 import paho.mqtt.client as mqtt
 
@@ -14,9 +15,11 @@ PREFIX = "hidroponia"
 
 
 def make_client(config, client_id):
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id)
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=hashlib.sha256((config.get("MQTT_TOPIC_PREFIX", PREFIX) + client_id).encode()).hexdigest()[:16] + "-" + uuid.uuid4().hex[:6])
     if config.get("MQTT_USERNAME"):
         client.username_pw_set(config["MQTT_USERNAME"], config["MQTT_PASSWORD"])
+    if config.get("MQTT_TLS"):
+        client.tls_set(ca_certs=config.get("MQTT_CA_FILE"))
     client.reconnect_delay_set(min_delay=1, max_delay=10)
     client.max_queued_messages_set(100)
     return client
@@ -25,6 +28,7 @@ def make_client(config, client_id):
 class MQTTService:
     def __init__(self, app):
         self.app = app
+        self.prefix = app.config.get("MQTT_TOPIC_PREFIX", PREFIX)
         self.connected = False
         self.last_error = None
         self.client = make_client(app.config, "hidroponia-backend")
@@ -48,7 +52,7 @@ class MQTTService:
         self.connected = not reason_code.is_failure
         if self.connected:
             self.last_error = None
-            client.subscribe([(f"{PREFIX}/sensores/+", 1), (f"{PREFIX}/estado/+", 1)])
+            client.subscribe([(f"{self.prefix}/sensores/+", 1), (f"{self.prefix}/estado/+", 1)])
             self.app.logger.info("MQTT conectado")
         else:
             self.last_error = "Broker rechazó la conexión"
@@ -68,13 +72,18 @@ class MQTTService:
                 raise ValueError("Mensaje retenido o demasiado grande")
             payload = json.loads(message.payload)
             with self.app.app_context():
-                if message.topic.startswith(f"{PREFIX}/sensores/"):
+                if message.topic.startswith(f"{self.prefix}/sensores/"):
+                    profile = self.app.config.get("HYDRO_PROFILE")
+                    if profile in {"wokwi", "hardware"}:
+                        source = "wokwi" if profile == "wokwi" else "esp32"
+                        if payload.get("device_id") != self.app.config["CONTROL_DEVICE_ID"] or payload.get("source") != source:
+                            raise ValueError("Origen o dispositivo ajeno al perfil")
                     reading = store_reading(payload, message.topic.rsplit("/", 1)[1])
                     if reading:
                         self.app.logger.debug("Lectura MQTT %s id=%s", message.topic, reading["id"])
                         if self.on_reading:
                             self.on_reading(reading)
-                elif message.topic == f"{PREFIX}/estado/{self.app.config['CONTROL_DEVICE_ID']}":
+                elif message.topic == f"{self.prefix}/estado/{self.app.config['CONTROL_DEVICE_ID']}":
                     output = number(payload.get("output"), "output", -40, 40)
                     with get_db() as db:
                         for name, value in [("ph_plus", max(output, 0)), ("ph_minus", max(-output, 0))]:
@@ -84,6 +93,10 @@ class MQTTService:
             self.app.logger.warning("Mensaje MQTT rechazado: %s", type(exc).__name__)
 
     def publish(self, topic, payload):
+        if not topic.startswith(self.prefix + "/"):
+            raise ValueError("Topic fuera de la instalación")
+        if not self.app.config.get("CONTROL_ENABLED", True):
+            raise RuntimeError("El perfil de hardware está limitado a monitoreo")
         if not self.connected:
             raise RuntimeError("MQTT desconectado")
         # Comandos efímeros: QoS 0, sin retención ni cola offline.
@@ -109,7 +122,7 @@ class MQTTService:
             self.thread.join(timeout=5)
         if self.connected:
             try:
-                self.publish(f"{PREFIX}/control/ph", {"device_id": self.app.config["CONTROL_DEVICE_ID"],
+                self.publish(f"{self.prefix}/control/ph", {"device_id": self.app.config["CONTROL_DEVICE_ID"],
                              "output": 0, "ttl": 0, "timestamp": utcnow(), "command_id": uuid.uuid4().hex})
             except RuntimeError:
                 pass

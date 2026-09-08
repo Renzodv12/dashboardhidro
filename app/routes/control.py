@@ -40,7 +40,7 @@ def disturbance():
         raise ValueError('Variable inválida')
     delta=number(data.get('delta'),'delta',-1000,1000)
     payload=dict(device_id=current_app.config['CONTROL_DEVICE_ID'],variable=data['variable'],delta=delta,timestamp=utcnow(),command_id=uuid.uuid4().hex)
-    service().publish(f'{PREFIX}/simulation/disturbance',payload)
+    service().publish(f"{current_app.config['MQTT_TOPIC_PREFIX']}/simulation/disturbance",payload)
     with get_db():
         audit('simulation.disturbance',str(payload),g.user['id'])
     return jsonify(status='sent',command_id=payload['command_id'])

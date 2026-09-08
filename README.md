@@ -29,6 +29,21 @@ simulador es otro proceso y Mosquitto es el broker local. La factoría `create_a
 no inicia hilos: sirve para pruebas y comandos CLI. No ejecutar varios `run.py`
 contra la misma instalación: cada unidad tiene un solo controlador.
 
+## Wokwi gratuito y hardware propio
+
+Ya hay perfiles independientes: `local` (5000), `wokwi` (5001) y `hardware`
+(5002, solo monitoreo). Para preparar el circuito gratuito:
+
+```bash
+python scripts/prepare_wokwi.py
+python run.py --profile wokwi
+```
+
+Los archivos para el editor se generan en `data/wokwi/`, sin cuentas ni imágenes.
+El perfil gratuito usa un broker público con topics únicos para datos sintéticos.
+La demo local conserva Mosquitto propio. Seguir la
+[guía de Wokwi gratuito y transición a hardware](docs/WOKWI_GRATUITO.md).
+
 ## 1. Preparar Python
 
 Recomendado Python 3.11/3.12; probado aquí con Python 3.9.6 en macOS ARM64.
@@ -147,7 +162,10 @@ prototipo local. El reloader está desactivado para no duplicar el consumidor PI
 | LOG_LEVEL | INFO; DEBUG agrega cada lectura y ciclo PID |
 | SIMULATION_ENABLED | Habilita simulador y perturbaciones; no lo inicia |
 | MQTT_HOST / MQTT_PORT | Broker local |
-| MQTT_USERNAME / MQTT_PASSWORD | Credenciales opcionales |
+| MQTT_USERNAME / MQTT_PASSWORD | Credenciales; obligatorias en perfil hardware |
+| MQTT_TOPIC_PREFIX | Namespace de la instalación; aleatorio en Wokwi público |
+| MQTT_TLS / MQTT_CA_FILE | TLS verificado y CA local del broker propio |
+| HYDRO_PROFILE | local, wokwi o hardware (también --profile en run.py) |
 | CONTROL_DEVICE_ID | Único dispositivo de control: simulator-01 o esp32-01 |
 | CAMERA_INDEX | Webcam del servidor; 0 por defecto |
 
@@ -302,11 +320,16 @@ En Wokwi web, crear ESP32, copiar el contenido del `.ino` a `sketch.ino` y agreg
 `diagram.json`, `libraries.txt`, `hidroponia_config.example.h`. Para VS Code, usar el binario
 generado con `wokwi.toml`.
 
-**Conectividad:** el gateway público de Wokwi no accede al Mosquitto privado del
-PC. `host.wokwi.internal` requiere el gateway privado, sujeto a disponibilidad y
-condiciones del servicio. No se hace depender la demo de una función paga: el
-simulador Python permite todo el recorrido local sin Wokwi. No abrir puertos en
-Internet como atajo. Referencia: [red ESP32 en Wokwi](https://docs.wokwi.com/guides/esp32-wifi).
+**Conectividad gratuita:** ejecutar `scripts/prepare_wokwi.py` y usar los archivos
+que genera en `data/wokwi/`. Ambos extremos se conectan al broker público de pruebas
+HiveMQ, sin gateway privado. Cada instalación tiene un prefijo único; eso evita
+mezclas accidentales, pero no brinda privacidad ni autentica mensajes. Solo datos
+sintéticos y LEDs. No enviar credenciales ni conectar actuadores reales.
+
+La conexión directa desde Wokwi al Mosquitto de tu PC sigue requiriendo el gateway
+privado (opción paga); ya no es requisito de la demostración Wokwi gratuita.
+Detalles, prueba de conexión y cambio de broker en
+[docs/WOKWI_GRATUITO.md](docs/WOKWI_GRATUITO.md).
 
 ## Raspberry Pi: migración
 

@@ -3,6 +3,11 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 .env
+.env.wokwi
+.env.hardware
+data/wokwi/
+data/images/camera-*
+.tools/
 data/*.sqlite3*
 data/*.db*
 data/processed/*

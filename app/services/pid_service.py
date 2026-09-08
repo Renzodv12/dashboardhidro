@@ -70,6 +70,8 @@ class ControlService:
     def operate(self, action, data, user_id):
         with self.lock:
             mode=parameter('control_mode','manual')
+            if not self.mqtt.app.config.get('CONTROL_ENABLED', True) and action not in {'emergency','reset'}:
+                raise ValueError('Hardware: control deshabilitado hasta calibración y validación')
             with get_db():
                 if action=='config':
                     set_parameter('pid',validate_config(data))
@@ -108,12 +110,15 @@ class ControlService:
             return self.status()
 
     def send(self, output):
+        prefix = self.mqtt.app.config.get("MQTT_TOPIC_PREFIX", PREFIX)
         payload=dict(device_id=self.mqtt.app.config['CONTROL_DEVICE_ID'],output=output,ttl=3,
                      timestamp=utcnow(),command_id=uuid.uuid4().hex)
+        if not self.mqtt.app.config.get("CONTROL_ENABLED", True):
+            return
         if self.mqtt.connected:
-            self.mqtt.publish(f'{PREFIX}/control/ph',payload)
+            self.mqtt.publish(f'{prefix}/control/ph',payload)
             for name,value in [('ph_plus',max(output,0)),('ph_minus',max(-output,0))]:
-                self.mqtt.publish(f'{PREFIX}/actuadores/{name}',{**payload,'output':value})
+                self.mqtt.publish(f'{prefix}/actuadores/{name}',{**payload,'output':value})
         with get_db() as db:
             for name,value in [('ph_plus',max(output,0)),('ph_minus',max(-output,0))]:
                 db.execute('UPDATE actuators SET requested_output=?,updated_at=?,device_id=? WHERE name=?',
@@ -146,7 +151,10 @@ class ControlService:
                 self.continuous=0
             output=0.
             reason='Manual detenido'
-            if mode=='emergency':
+            if not self.mqtt.app.config.get('CONTROL_ENABLED', True):
+                reason='Hardware: solo monitoreo; control físico pendiente de validación'
+                self.pid.reset()
+            elif mode=='emergency':
                 reason='Parada de emergencia enclavada'
             elif self.continuous>=config['max_continuous'] or sum(x[1] for x in history)>=config['max_dose']:
                 mode='emergency'

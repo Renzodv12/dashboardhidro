@@ -73,7 +73,7 @@ async function adminPages() {
   if($('audit-table')) table('audit-table',await api('/api/audit'),[['timestamp','Fecha UTC'],['username','Usuario'],['action','Acción'],['details','Detalle']]);
   if($('metrics')) {const m=await api('/api/metrics');$('metrics').textContent=JSON.stringify(m,null,2);}
 }
-async function refresh() {try{const state=await api('/api/health');$('connection').textContent=`SQLite: ${state.database} · MQTT: ${state.services.mqtt} · ${new Date().toLocaleTimeString()}`;await Promise.all([cards(),controlStatus(),alerts()]);}catch(e){$('connection').textContent='Sin actualización: '+e.message;}}
+async function refresh() {try{const state=await api('/api/health');$('connection').textContent=`Perfil: ${state.profile || 'local'} · SQLite: ${state.database} · MQTT: ${state.services.mqtt} · ${new Date().toLocaleTimeString()}`;await Promise.all([cards(),controlStatus(),alerts()]);}catch(e){$('connection').textContent='Sin actualización: '+e.message;}}
 (async()=>{
   bindForm('pid-form','/api/control/config',data=>Object.fromEntries(Object.entries(data).map(([k,v])=>[k,Number(v)])));
   bindForm('manual-form','/api/control/manual',d=>({output:Number(d.output)}));

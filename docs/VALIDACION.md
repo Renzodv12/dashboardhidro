@@ -47,3 +47,33 @@ extremo ni mejora productiva del cultivo.
 - Pruebas prolongadas según RNF, con sonda externa y conteo de emisiones esperadas.
 - Evaluación de interfaz por operadores y comparación de fotografías reales con
   encuadre, luz y ROI constantes.
+
+## Actualización: perfiles gratuitos y hardware — 7 de septiembre de 2026
+
+- 37 pruebas automáticas aprobadas (incluyen perfiles, aislamiento por topics,
+  rechazo de fuentes incompatibles, paquete sin secretos y bloqueo del control
+  físico en el perfil hardware).
+- Firmware actualizado compilado: RAM 46544 bytes (14.2 %), flash 793101 bytes
+  (60.5 %). Topics configurables y perturbaciones desde el panel incorporados.
+- Prueba MQTT real contra `broker.hivemq.com`: seis variables sintéticas recibidas
+  y guardadas en SQLite; comando OFF recibido por el cliente de prueba.
+- `test.mosquitto.org` desconectó los clientes durante este ensayo. No se presenta
+  ese intento como exitoso ni se atribuye una causa definitiva sin evidencia.
+- Regresión local aprobada: pH 7.0032 → 6.2421 en 26.24 s, 186 lecturas,
+  emergencia y bloqueo por nivel bajo correctos.
+- Se detectaron y corrigieron nombres de pines del diagrama DevKit V1. Los GPIO
+  usan etiquetas D34/D35/D32/D33, VP/VN y D18/D19 en ese modelo de placa.
+
+La prueba MQTT pública realizada desde Python no equivale a ejecutar Wokwi.
+El comando opcional `python scripts/verify_wokwi_browser.py` carga firmware y
+circuito en una sesión temporal del editor gratuito (requiere Chrome/Playwright y
+backend Wokwi iniciado). No guarda ni publica proyectos. Espera hasta 180 s por
+lecturas nuevas; si la cola de compilación/red impide recibirlas, falla de forma
+explícita. La prueba no habilita hardware real.
+
+Resultado observado de Wokwi web en este intento: el editor aceptó el circuito y
+las bibliotecas, pero mostró **Build Servers Busy** después de esperar en la cola
+gratuita. No se recibieron lecturas del ESP32 virtual dentro de los 180 segundos.
+La ejecución completa Wokwi→MQTT→backend queda pendiente de reintentar cuando el
+compilador esté disponible. No hace falta contratar un plan para reintentar.
+Captura local: `data/wokwi/wokwi-web.png`.

@@ -1,0 +1,17 @@
+# Plantilla para Raspberry Pi / broker propio; no se inicia automáticamente.
+# Crear previamente certificados, credenciales y ACL en rutas propias.
+listener 8883
+allow_anonymous false
+password_file /etc/mosquitto/hidroponia.passwd
+acl_file /etc/mosquitto/hidroponia.acl
+certfile /etc/mosquitto/certs/server.crt
+keyfile /etc/mosquitto/certs/server.key
+# La CA de confianza se configura en MQTT_CA_FILE del backend.
+# ACL mínima de monitoreo para una unidad:
+# user hidroponia-backend
+# topic read hidroponia/granja01/sensores/+
+# topic read hidroponia/granja01/estado/+
+# user esp32-01
+# topic write hidroponia/granja01/sensores/+
+# topic write hidroponia/granja01/estado/esp32-01
+# No conceder escritura de control físico hasta validar el driver y los límites.

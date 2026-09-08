@@ -9,3 +9,4 @@
 #define MQTT_USERNAME ""
 #define MQTT_PASSWORD ""
 #define DEVICE_ID "esp32-01"
+#define MQTT_TOPIC_PREFIX "hidroponia"

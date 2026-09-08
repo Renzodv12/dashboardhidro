@@ -5,6 +5,12 @@ from app.services.mqtt_service import MQTTService
 
 
 if __name__ == "__main__":
+    import argparse
+    import os
+    parser = argparse.ArgumentParser(description="Backend hidropónico local, Wokwi o hardware")
+    parser.add_argument("--profile", choices=["local", "wokwi", "hardware"], default=os.getenv("HYDRO_PROFILE", "local"))
+    args = parser.parse_args()
+    os.environ["HYDRO_PROFILE"] = args.profile
     app = create_app()
     service = MQTTService(app)
     from app.services.alert_service import evaluate

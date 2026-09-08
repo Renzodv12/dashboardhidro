@@ -23,6 +23,9 @@ def main():
     if not .2 <= args.interval <= 5:
         parser.error("interval debe estar entre 0.2 y 5 segundos")
     config = load_config()
+    prefix = config["MQTT_TOPIC_PREFIX"]
+    if config["HYDRO_PROFILE"] != "local":
+        parser.error("El simulador Python solo se ejecuta en perfil local")
     if not config["SIMULATION_ENABLED"]:
         parser.error("Configurar SIMULATION_ENABLED=true en .env")
     variables = None
@@ -37,7 +40,7 @@ def main():
 
     def on_connect(client, userdata, flags, reason, properties):
         if not reason.is_failure:
-            client.subscribe([(f"{PREFIX}/control/ph", 0), (f"{PREFIX}/simulation/disturbance", 0)])
+            client.subscribe([(f"{prefix}/control/ph", 0), (f"{prefix}/simulation/disturbance", 0)])
             logging.info("Simulador conectado a MQTT")
 
     def on_message(client, userdata, message):
@@ -83,8 +86,8 @@ def main():
                 payload = dict(device_id=device, variable=variable, value=value,
                                unit=plant.variables[variable]["unit"], timestamp=utcnow(),
                                message_id=uuid.uuid4().hex, source="simulator")
-                client.publish(f"{PREFIX}/sensores/{variable}", json.dumps(payload), qos=1)
-            client.publish(f"{PREFIX}/estado/{device}", json.dumps({"output": output}), qos=0)
+                client.publish(f"{prefix}/sensores/{variable}", json.dumps(payload), qos=1)
+            client.publish(f"{prefix}/estado/{device}", json.dumps({"output": output}), qos=0)
             logging.info("pH %.3f · acción %+.1f%%", values["ph"], output)
     except KeyboardInterrupt:
         pass

@@ -22,6 +22,7 @@ def health():
         database="ok",
         schema_version=row["version"],
         phase=12,
+        profile=current_app.config['HYDRO_PROFILE'],
         timestamp=datetime.now(timezone.utc).isoformat(),
         services={"mqtt": "connected" if current_app.extensions.get("mqtt") and current_app.extensions["mqtt"].connected else "disconnected"},
     )
