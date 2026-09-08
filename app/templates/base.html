@@ -11,8 +11,8 @@
 <body>
   <header><a href="{{ url_for('dashboard.index_page') }}">Hidroponía <span>Laboratorio local</span></a>
   <nav aria-label="Principal">
-  {% for route,label in [('dashboard','Panel'),('sensors','Sensores'),('history','Históricos'),('alerts','Alertas'),('vision','Visión')] %}<a href="/{{ route }}">{{ label }}</a>{% endfor %}
-  {% if g.user and g.user.role == 'ADMIN' %}{% for route,label in [('control','PID'),('settings','Configuración'),('users','Usuarios'),('audit','Auditoría')] %}<a href="/{{ route }}">{{ label }}</a>{% endfor %}{% endif %}
+  {% for route,label in [('dashboard','Panel'),('sensors','Sensores'),('history','Históricos'),('alerts','Alertas'),('vision','Visión')] %}<a href="/{{ route }}" {% if request.path == "/" + route %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+  {% if g.user and g.user.role == 'ADMIN' %}{% for route,label in [('control','PID'),('settings','Configuración'),('users','Usuarios'),('audit','Auditoría')] %}<a href="/{{ route }}" {% if request.path == "/" + route %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}{% endif %}
   {% if g.user %}<form action="/logout" method="post"><input type="hidden" name="csrf_token" value="{{ session.get('csrf_token','') }}"><button class="btn btn-sm btn-outline-secondary">Salir</button></form>{% endif %}
   </nav></header>
   <main>{% block content %}{% endblock %}</main>

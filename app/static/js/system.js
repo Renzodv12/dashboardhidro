@@ -33,7 +33,7 @@ async function controlStatus(fill=false) {
 async function cards() {
   if(!$('sensor-cards')) return;
   const rows=await api('/api/sensors/latest'); $('sensor-cards').replaceChildren();
-  rows.forEach(r=>{const card=node('article',''); card.append(node('h2',r.label)); card.append(node('strong',r.value===null?'—':`${Number(r.value).toFixed(2)} ${r.unit}`,'reading'));
+  rows.forEach(r=>{const card=node('article',''); card.append(node('h2',r.label)); const reading=node('strong',r.value===null?'—':Number(r.value).toFixed(2),'reading'); reading.append(node('small',r.unit)); card.append(reading);
     const stale=r.value===null || Date.now()-Date.parse(r.measured_at)>5000;
     card.append(node('p',stale?'Sin lectura reciente':r.value<r.minimum?'Bajo':r.value>r.maximum?'Alto':'En rango',stale?'text-secondary':r.value<r.minimum||r.value>r.maximum?'text-danger':'text-success'));
     card.append(node('small',`${r.source||'Sin origen'} · ${date(r.measured_at)}`)); $('sensor-cards').append(card);});
@@ -46,11 +46,30 @@ async function histories() {
   const all=await Promise.all(types.map(t=>api(`/api/sensors/history/${t.variable}?${params}`)));
   let events=[]; try { events=await api('/api/control/events'); } catch(e) { /* history remains usable without control */ }
   types.forEach((type,i)=>{ const rows=all[i]; let chart=charts[type.variable];
-    if(!chart) { const box=node('div','','chart-box'); box.append(node('h3',type.label)); const canvas=document.createElement('canvas'); canvas.setAttribute('aria-label',`${type.label} vs tiempo`); canvas.setAttribute('role','img'); box.append(canvas); const link=node('a','Exportar CSV'); link.id=`csv-${type.variable}`; box.append(link); $('charts').append(box); chart=new Chart(canvas,{type:'line',data:{labels:[],datasets:[]},options:{animation:false,responsive:true,scales:{y:{title:{display:true,text:type.unit}}},plugins:{legend:{display:true}}}}); charts[type.variable]=chart; }
+    if(!chart) {
+      const box=node('div','','chart-box');
+      const heading=node('div','','chart-heading'); heading.append(node('h3',type.label));
+      const link=node('a','Descargar CSV'); link.id=`csv-${type.variable}`; link.setAttribute('aria-label',`Descargar CSV de ${type.label}`); heading.append(link); box.append(heading);
+      const frame=node('div','','chart-canvas'); const canvas=document.createElement('canvas');
+      canvas.setAttribute('aria-label',`${type.label} a lo largo del tiempo, en ${type.unit}`); canvas.setAttribute('role','img'); frame.append(canvas); box.append(frame);
+      const empty=node('p','','chart-empty'); empty.id=`empty-${type.variable}`; box.append(empty); $('charts').append(box);
+      chart=new Chart(canvas,{type:'line',data:{datasets:[]},options:{
+        animation:false,responsive:true,maintainAspectRatio:false,parsing:false,
+        interaction:{mode:'index',intersect:false},
+        scales:{x:{type:'linear',grid:{display:false},border:{display:false},ticks:{color:'#64736d',maxTicksLimit:5,maxRotation:0,callback:function(value){const span=this.max-this.min; const d=new Date(value); return span>=86400000?d.toLocaleDateString([], {day:'2-digit',month:'2-digit'}):d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',...(span<300000?{second:'2-digit'}:{}),hour12:false});}}},
+          y:{border:{display:false},grid:{color:'#edf1ee'},ticks:{color:'#64736d',maxTicksLimit:5},title:{display:!!type.unit,text:type.unit,color:'#64736d'}}},
+        plugins:{legend:{display:type.variable==='ph',position:'bottom',labels:{boxWidth:16,boxHeight:2,color:'#64736d',font:{size:11}}},
+          tooltip:{backgroundColor:'#243731',padding:12,displayColors:false,callbacks:{title:items=>items.length?date(items[0].parsed.x):'',label:item=>`${item.dataset.label}: ${Number(item.parsed.y).toFixed(2)} ${type.unit}`}}}
+      }}); charts[type.variable]=chart;
+    }
     $(`csv-${type.variable}`).href=`/api/sensors/history/${type.variable}?${params}&format=csv`;
-    chart.data.labels=rows.map(r=>new Date(r.measured_at).toLocaleTimeString());
-    chart.data.datasets=[{label:type.label,data:rows.map(r=>r.value),borderColor:'#246249',pointRadius:0,borderWidth:2}];
-    if(type.variable==='ph') { chart.data.datasets.push({label:'Setpoint registrado',data:rows.map(r=>{const e=events.find(e=>e.timestamp<=r.measured_at);return e?e.setpoint:null;}),borderColor:'#cf881c',borderDash:[5,5],pointRadius:0}); }
+    const points=rows.map(r=>({x:Date.parse(r.measured_at),y:r.value})).sort((a,b)=>a.x-b.x);
+    $(`empty-${type.variable}`).textContent=points.length?'':'Sin lecturas en este intervalo.';
+    chart.data.datasets=[{label:type.label,data:points,borderColor:'#28735b',backgroundColor:'#28735b0a',fill:true,pointRadius:points.length===1?3:0,pointHitRadius:12,pointHoverRadius:4,borderWidth:2,spanGaps:false}];
+    if(type.variable==='ph') {
+      const ordered=events.slice().sort((a,b)=>Date.parse(b.timestamp)-Date.parse(a.timestamp));
+      chart.data.datasets.push({label:'Objetivo registrado',data:points.map(p=>{const e=ordered.find(e=>Date.parse(e.timestamp)<=p.x);return {x:p.x,y:e?e.setpoint:null};}),borderColor:'#a88448',borderDash:[4,4],pointRadius:0,borderWidth:1.5,stepped:true});
+    }
     chart.update();
   });
 }

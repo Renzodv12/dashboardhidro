@@ -27,3 +27,56 @@ article p, .note { color: #52685e; font-size: .9rem; }
 nav {display:flex;gap:16px;flex-wrap:wrap;margin-top:16px} nav a {font-size:.9rem}
 nav form {display:inline} img {max-width:100%;border-radius:8px;margin-top:12px}
 #metrics {white-space:pre-wrap} .login {max-width:480px;margin:60px auto}
+
+/* Superficie y jerarquía del sistema */
+:root { --ink:#243731; --muted:#64736d; --line:#e3e9e5; --accent:#28735b; }
+body { background:#f7f9f8; color:var(--ink); font-family:system-ui,-apple-system,sans-serif; font-size:14px; }
+header { padding:20px max(24px,calc((100vw - 1240px)/2)); border-color:var(--line); }
+header > a { font-size:18px; letter-spacing:-.5px; }
+header span { color:var(--muted); }
+nav { gap:4px; align-items:center; margin-top:18px; }
+nav a { padding:8px 12px; border-radius:6px; font-weight:500; color:var(--muted); }
+nav a:hover, nav a[aria-current="page"] { background:#edf4f0; color:#205b47; }
+nav form { margin-left:auto; }
+main { max-width:1288px; margin:36px auto; }
+h1 { font-size:clamp(1.65rem,3vw,2.2rem); font-weight:650; letter-spacing:-.045em; margin:0 0 10px; }
+h2 { font-size:14px; font-weight:650; margin-bottom:18px; }
+h3 { font-size:15px; }
+.eyebrow { color:var(--muted); font-size:10px; letter-spacing:.13em; margin-bottom:12px; }
+.heading { margin-bottom:24px; }
+.heading .note { margin:0; font-size:12px; }
+.badge { background:#edf4f0; color:#35634f; font-size:10px; letter-spacing:.07em; font-weight:600; padding:8px 10px; }
+.panel, article { border:1px solid var(--line); border-radius:10px; padding:22px; box-shadow:none; }
+.panel { margin:24px 0; }
+.grid { gap:16px; }
+#sensor-cards { grid-template-columns:repeat(3,minmax(0,1fr)); }
+#sensor-cards h2 { color:var(--muted); margin-bottom:12px; font-size:12px; font-weight:500; }
+.reading { font-size:30px; font-weight:550; letter-spacing:-1px; line-height:1.3; font-variant-numeric:tabular-nums; }
+.reading small { font-size:13px; font-weight:400; letter-spacing:0; margin-left:6px; color:var(--muted); }
+#sensor-cards p { margin:10px 0 8px; font-size:12px; }
+#sensor-cards > article > small { display:block; color:var(--muted); font-size:10px; }
+.note, article p { color:var(--muted); }
+.form-grid { gap:12px; }
+.form-grid label { font-size:12px; color:var(--muted); }
+.form-control,.form-select { margin-top:6px; font-size:13px; border-color:#d8e1db; border-radius:6px; min-height:38px; }
+.form-control:focus,.form-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px #28735b18; }
+.btn { font-size:12px; padding:9px 14px; border-radius:6px; }
+.btn-success { --bs-btn-bg:#28735b; --bs-btn-border-color:#28735b; --bs-btn-hover-bg:#205d49; --bs-btn-hover-border-color:#205d49; }
+a { color:var(--accent); }
+:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.chart-grid { gap:24px; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.chart-box { padding:18px 0 0; border-top:1px solid var(--line); }
+.chart-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+.chart-heading h3 { margin:0; font-size:13px; font-weight:600; }
+.chart-heading a { font-size:11px; text-decoration:none; }
+.chart-heading a:hover { text-decoration:underline; }
+.chart-canvas { position:relative; height:220px; }
+.chart-empty { color:var(--muted); font-size:12px; margin:8px 0 0; }
+.table { font-size:12px; --bs-table-bg:transparent; --bs-table-border-color:var(--line); }
+.table th { font-weight:500; color:var(--muted); white-space:nowrap; }
+.table > :not(caption) > * > * { padding:12px 8px; }
+#vision-summary img { max-height:160px; width:100%; object-fit:contain; }
+#metrics { font-size:12px; overflow-wrap:anywhere; }
+.login h1 { font-size:28px; }
+@media(min-width:1200px) { #sensor-cards { grid-template-columns:repeat(6,minmax(0,1fr)); } #sensor-cards article { padding:18px 14px; } }
+@media(max-width:640px) { main { padding:0 16px; margin:24px auto; } header { padding:16px; } header span { display:none; } nav { gap:2px; } nav a { padding:8px; font-size:12px; } nav form { margin-left:0; } #sensor-cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } #sensor-cards article { padding:16px; } .reading { font-size:26px; } .panel { padding:18px; } .chart-grid { grid-template-columns:1fr; } .form-grid label { min-width:100%; } }
