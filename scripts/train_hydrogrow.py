@@ -71,7 +71,7 @@ def main():
     (output/'sample-manifest.json').write_text(json.dumps(raw,indent=2)+'\n')
     (output/'inventory.json').write_text((folder/'inventory.json').read_text())
     with (output/'predictions.csv').open('w') as f:
-        writer=csv.DictWriter(f,fieldnames=list(predictions[0]));writer.writeheader();writer.writerows(predictions)
+        writer=csv.DictWriter(f,fieldnames=list(predictions[0]),lineterminator='\n');writer.writeheader();writer.writerows(predictions)
     print(json.dumps(report,indent=2))
 
 
