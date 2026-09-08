@@ -68,7 +68,8 @@ Definir un objetivo agronómico medido (por ejemplo, área proyectada anotada o
 biomasa medida), verificar identificadores de planta y protocolo de captura,
 y reunir validación propia DWC. Un nuevo experimento que cambie el modelo después
 de consultar estos resultados necesitará un conjunto final de prueba nuevo.
-El modelo permanece opcional, fuera del dashboard y sin acceso al PID.
+El modelo permanece opcional y sin acceso al PID. El dashboard de Visión muestra
+las evidencias guardadas, sin ejecutar inferencia sobre capturas del usuario.
 
 Ver [método y reproducción](README.md), [métricas completas](metrics.json),
 [predicciones](predictions.csv), [modelo](model.json) y

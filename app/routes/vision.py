@@ -34,3 +34,24 @@ def image(filename):
     if not path.exists():
         abort(404)
     return send_file(path)
+
+
+@bp.get('/ml/report')
+def ml_report():
+    """Evidencia del experimento guardado, independiente de las capturas del usuario."""
+    import json
+    path=Path(current_app.root_path).parent/'docs/ml/metrics.json'
+    if not path.is_file():
+        return jsonify(error='Todavía no hay resultados de entrenamiento disponibles'),404
+    return jsonify(json.loads(path.read_text()))
+
+
+@bp.get('/ml/evidence/<name>')
+def ml_evidence(name):
+    allowed={'evaluation.png','predictions.csv','RESULTADOS.md'}
+    if name not in allowed:
+        abort(404)
+    path=Path(current_app.root_path).parent/'docs/ml'/name
+    if not path.is_file():
+        abort(404)
+    return send_file(path,as_attachment=name!='evaluation.png',download_name=name)

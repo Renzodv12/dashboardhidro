@@ -84,6 +84,26 @@ async function visions() {
   if($('vision-summary')) { $('vision-summary').textContent=data?`${data.coverage.toFixed(1)}% cobertura verde · ${date(data.timestamp)}`:'Sin análisis'; if(data) {const img=document.createElement('img');img.src=`/api/vision/image/${data.processed_image}`;img.alt='Última segmentación vegetal';$('vision-summary').append(img);} }
   if($('vision-list')) { const rows=await api('/api/vision'); $('vision-list').replaceChildren();rows.forEach(r=>{const card=node('article','');const img=document.createElement('img');img.src=`/api/vision/image/${r.processed_image}`;img.alt='Segmentación de '+r.filename;card.append(img,node('h3',`${r.coverage.toFixed(2)}% verde`),node('p',`${r.filename} · ${date(r.timestamp)}`),node('small',r.observations));$('vision-list').append(card);}); }
 }
+async function mlReport() {
+  if(!$('ml-tests')) return;
+  try {
+    const report=await api('/api/vision/ml/report');
+    const test=report.splits.test;
+    const format=value=>Number(value).toLocaleString('es', {maximumFractionDigits:2});
+    $('ml-status').textContent=`Entrenamiento registrado: ${date(report.created_at)}. Precisión insuficiente para uso operativo; R² de prueba: ${format(test.model.r2)}.`;
+    $('ml-metrics').replaceChildren();
+    for(const [title,value,description] of [
+      ['Muestra del dataset',`${report.raw_samples} imágenes`,'Distribuidas entre tres experimentos'],
+      ['Error medio en prueba',`${format(test.model.mae_days)} días`,`${test.images} imágenes de ${test.experiment}`],
+      ['Referencia simple',`${format(test.baseline_train_median.mae_days)} días`,'Error al responder siempre la mediana del entrenamiento']
+    ]) {
+      const card=node('article',''); card.append(node('h3',title),node('strong',value,'ml-value'),node('p',description,'note')); $('ml-metrics').append(card);
+    }
+    const labels={train:'Entrenamiento',validation:'Validación',test:'Prueba reservada'};
+    table('ml-splits',Object.entries(report.splits).map(([key,s])=>({split:labels[key]||key,experiment:s.experiment,images:s.images,days:s.dates,mae:format(s.model.mae_days),baseline:format(s.baseline_train_median.mae_days),r2:format(s.model.r2)})),[['split','Conjunto'],['experiment','Experimento'],['images','Imágenes'],['days','Fechas'],['mae','Error medio (días)'],['baseline','Referencia (días)'],['r2','R²']]);
+    $('ml-figure').hidden=false;
+  } catch(error) { $('ml-status').textContent='Resultados no disponibles: '+error.message; }
+}
 function bindForm(id,url,transform=x=>x,after=()=>{}) { if(!$(id)) return;$(id).addEventListener('submit',async e=>{e.preventDefault();try{await api(url,'POST',transform(Object.fromEntries(new FormData(e.target))));feedback('Operación registrada');await after();}catch(e){feedback(e.message,true);}}); }
 function button(id,url,body,after=()=>controlStatus()) { if($(id)) $(id).onclick=async()=>{try{await api(url,'POST',body);feedback('Operación registrada');await after();}catch(e){feedback(e.message,true);}}; }
 async function adminPages() {
@@ -103,6 +123,6 @@ async function refresh() {try{const state=await api('/api/health');$('connection
   if($('backup')) $('backup').onclick=async()=>{try{const response=await fetch('/api/backup',{method:'POST',headers:{'X-CSRF-Token':csrf()}});if(!response.ok)throw new Error('Error al crear respaldo');const a=document.createElement('a');a.href=URL.createObjectURL(await response.blob());a.download='hidroponia-backup.sqlite3';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}catch(e){feedback(e.message,true);}};
   if($('history-filter')) $('history-filter').onsubmit=e=>{e.preventDefault();histories().catch(e=>feedback(e.message,true));};
   if($('alert-filter')) $('alert-filter').onchange=()=>alerts().catch(e=>feedback(e.message,true));
-  try { if($('image-files')) (await api('/api/vision/files')).forEach(f=>{const o=node('option',f);o.value=f;$('image-files').append(o);});await refresh();await controlStatus(true);await histories();await visions();await adminPages(); } catch(e){feedback(e.message,true);}
+  try { if($('image-files')) (await api('/api/vision/files')).forEach(f=>{const o=node('option',f);o.value=f;$('image-files').append(o);});await refresh();await controlStatus(true);await histories();await visions();await mlReport();await adminPages(); } catch(e){feedback(e.message,true);}
   setInterval(refresh,2000);if($('charts'))setInterval(()=>histories().catch(e=>feedback(e.message,true)),10000);
 })();

@@ -134,6 +134,18 @@ def main():
                         page.goto(base+'/'+path)
                         page.wait_for_timeout(700)
                         assert not page.locator('#feedback.alert-danger').count(),page.locator('#feedback').inner_text()
+                        if path=='vision':
+                            page.wait_for_selector('#ml-metrics article')
+                            assert page.locator('#ml-metrics article').count()==3
+                            assert 'Precisión insuficiente' in page.locator('#ml-status').inner_text()
+                            page.locator('#ml-figure').scroll_into_view_if_needed()
+                            page.wait_for_function("document.querySelector('#ml-figure img').naturalWidth > 0")
+                            for width,height in [(1440,1000),(768,1024),(390,844)]:
+                                page.set_viewport_size(dict(width=width,height=height))
+                                page.wait_for_timeout(200)
+                                assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'),f'Overflow visión en {width}'
+                            page.set_viewport_size(dict(width=1440,height=1000))
+                            page.locator('#ml-tests').screenshot(path=str(ROOT/'docs/ml/dashboard-vision.png'))
                     page.goto(base+'/dashboard')
                     page.wait_for_selector('#sensor-cards article')
                     page.wait_for_timeout(700)

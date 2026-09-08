@@ -80,3 +80,11 @@ a { color:var(--accent); }
 .login h1 { font-size:28px; }
 @media(min-width:1200px) { #sensor-cards { grid-template-columns:repeat(6,minmax(0,1fr)); } #sensor-cards article { padding:18px 14px; } }
 @media(max-width:640px) { main { padding:0 16px; margin:24px auto; } header { padding:16px; } header span { display:none; } nav { gap:2px; } nav a { padding:8px; font-size:12px; } nav form { margin-left:0; } #sensor-cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } #sensor-cards article { padding:16px; } .reading { font-size:26px; } .panel { padding:18px; } .chart-grid { grid-template-columns:1fr; } .form-grid label { min-width:100%; } }
+
+.ml-value { display:block; font-size:26px; font-weight:550; letter-spacing:-.6px; margin:12px 0 6px; font-variant-numeric:tabular-nums; }
+.ml-details { margin:24px 0; }
+.ml-details summary { padding:10px 0; color:var(--accent); cursor:pointer; }
+#ml-figure img { width:100%; border:1px solid var(--line); }
+#ml-figure figcaption { font-size:12px; margin-top:10px; }
+#ml-tests .heading { margin-bottom:16px; }
+#ml-title { margin-bottom:0; }

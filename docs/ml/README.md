@@ -1,7 +1,8 @@
 # Experimento ML: HydroGrowNet v3
 
 Este módulo es una ampliación **experimental y opcional** del alcance original
-OpenCV de la tesis. No modifica Flask, la segmentación existente ni el PID.
+OpenCV de la tesis. Los resultados se consultan en **Visión → Modelo experimental de visión**.
+No modifica la segmentación existente ni el PID.
 
 Resultados ejecutados: [RESULTADOS.md](RESULTADOS.md).
 
@@ -90,5 +91,6 @@ Para ejecutar una predicción local sobre una imagen de la muestra:
 Reemplazar ARCHIVO por una ruta del manifiesto. No aplicar directamente a fotos
 sin segmentar de una webcam: el fondo cambiaría las características. La salida
 es exploratoria, **no diagnóstico agronómico**, no certifica edad ni madurez y no
-se conecta a actuadores. Antes de integrarlo al panel habría que definir un objetivo
+se conecta a actuadores. El panel muestra únicamente evidencias guardadas, sin ejecutar este modelo sobre
+capturas del usuario. Antes de habilitar inferencia operativa habría que definir un objetivo
 agronómico medido y validarlo con capturas propias y anotaciones independientes.
