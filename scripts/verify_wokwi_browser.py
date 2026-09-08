@@ -4,18 +4,30 @@ Solo se cargan el firmware simulado, diagrama y configuración pública generada
 """
 from pathlib import Path
 import re
+import argparse
+from dotenv import dotenv_values
 import time
 import sqlite3
 from datetime import datetime, timezone
 from playwright.sync_api import sync_playwright
 
 ROOT=Path(__file__).resolve().parents[1]
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--visible',action='store_true',help='Mostrar Chrome para manipular los potenciómetros')
+parser.add_argument('--minutes',type=int,default=0,help='Mantener la simulación tras recibir datos (0: solo verificar, máximo 120)')
+args=parser.parse_args()
+if not 0 <= args.minutes <= 120:
+    parser.error('--minutes debe estar entre 0 y 120')
+settings=dotenv_values(ROOT/'.env.wokwi')
+database=Path(settings.get('DATABASE_PATH') or 'data/hidroponia-wokwi.sqlite3')
+if not database.is_absolute(): database=ROOT/database
+device=settings.get('CONTROL_DEVICE_ID')
 folder=ROOT/'data/wokwi'
 firmware=(folder/'sketch.ino').read_text()
 header=(folder/'hidroponia_config.h').read_text()
 firmware=re.sub(r'#if __has_include\("hidroponia_config.h"\).*?#endif',header,firmware,flags=re.S)
 with sync_playwright() as p:
-    browser=p.chromium.launch(channel='chrome',headless=True)
+    browser=p.chromium.launch(channel='chrome',headless=not args.visible)
     page=browser.new_page(viewport={'width':1440,'height':1000})
     try:
         page.goto('https://wokwi.com/projects/new/esp32',wait_until='domcontentloaded',timeout=60000)
@@ -37,8 +49,8 @@ with sync_playwright() as p:
         last_update=0
         while time.monotonic()<deadline:
             page.wait_for_timeout(1000)
-            with sqlite3.connect(f'{(ROOT/"data/hidroponia-wokwi.sqlite3").as_uri()}?mode=ro',uri=True) as db:
-                rows=db.execute('SELECT s.variable,r.value FROM sensor_readings r JOIN sensor_types s ON s.id=r.sensor_type_id WHERE r.received_at>=? ORDER BY r.id DESC',(since,)).fetchall()
+            with sqlite3.connect(f'{database.as_uri()}?mode=ro',uri=True) as db:
+                rows=db.execute("SELECT s.variable,r.value FROM sensor_readings r JOIN sensor_types s ON s.id=r.sensor_type_id JOIN devices d ON d.id=r.device_id WHERE r.received_at>=? AND d.source='wokwi' AND d.id=? ORDER BY r.id DESC",(since,device)).fetchall()
             latest={}
             for variable,value in rows:
                 latest.setdefault(variable,value)
@@ -53,5 +65,11 @@ with sync_playwright() as p:
         page.screenshot(path=str(folder/'wokwi-web.png'))
         if not passed:
             raise RuntimeError('Sin seis lecturas del ESP32 virtual en 180 s; revisar cola, Serial y red')
+        if args.minutes:
+            print(f'Simulación activa durante {args.minutes} minutos. Panel: http://localhost:5001. Ctrl+C para detener.',flush=True)
+            end=time.monotonic()+args.minutes*60
+            while time.monotonic()<end:
+                page.wait_for_timeout(1000)
+            print('Simulación terminada; los datos permanecen en Históricos.',flush=True)
     finally:
         browser.close()

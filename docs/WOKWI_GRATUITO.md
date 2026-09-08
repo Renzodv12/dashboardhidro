@@ -84,10 +84,47 @@ Envía solamente seis valores sintéticos en un prefijo temporal independiente,
 verifica almacenamiento SQLite y recepción de un comando OFF, y cierra los
 clientes. **No ejecuta el firmware:** prueba la conectividad PC↔broker público.
 
-La compilación gratuita puede quedar en cola. En la comprobación de esta entrega
-Wokwi mostró `Build Servers Busy`; el firmware sí compiló localmente. Si aparece
-ese mensaje, reintentar más tarde. La conexión pública probada no permite afirmar
-que el circuito virtual ya se ejecutó correctamente.
+La compilación gratuita puede quedar en cola. El 7 de septiembre Wokwi mostró
+`Build Servers Busy`; al reintentar el **8 de septiembre de 2026**, el circuito
+compiló en Wokwi y se verificaron las seis variables del ESP32 virtual en SQLite.
+No se usó el simulador Python para esta comprobación. Si aparece ese mensaje,
+reintentar más tarde.
+
+## Generar datos de prueba desde el circuito virtual
+
+Con el backend Wokwi iniciado, ejecutar:
+
+```bash
+.venv/bin/python scripts/verify_wokwi_browser.py --visible --minutes 30
+```
+
+Requiere Chrome y Playwright instalados. Abre una sesión temporal del editor,
+carga el circuito y sus bibliotecas y espera hasta 180 segundos por las seis
+variables del dispositivo configurado. Después mantiene el circuito abierto
+30 minutos. Se puede detener antes con Ctrl+C; no guarda el proyecto en una
+cuenta Wokwi. Sin `--minutes`, solo verifica la llegada inicial y cierra Chrome.
+
+Abrir http://localhost:5001/dashboard con la cuenta local importada. En Históricos
+se conservan las lecturas al cerrar el circuito; las tarjetas pasarán a indicar
+que no hay lectura reciente. Los gráficos se actualizan cada 10 segundos.
+
+Lecturas iniciales observadas el 8 de septiembre (valores simulados):
+
+| Potenciómetro | Variable | Lectura inicial |
+| --- | --- | --- |
+| pot0 | pH | 6,150183 |
+| pot1 | TDS | 851,5507 ppm |
+| pot2 | Temperatura del agua | 22,39365 °C |
+| pot3 | Temperatura ambiente | 27,18803 °C |
+| pot4 | Humedad | 65,01832 % |
+| pot5 | Nivel | 77,99756 % |
+
+Para generar curvas, mover un potenciómetro y observar su lectura. Con los
+potenciómetros quietos y sin control, las señales son prácticamente constantes:
+no se añade ruido artificial. Para probar bajo nivel, bajar pot5 hasta menos del
+25 %; devolverlo luego a su posición inicial. Para probar el PID, seguir
+“Comprobar el lazo”. La recepción inicial de seis variables no demuestra por sí
+sola que todas las pruebas de actuación del lazo se hayan completado en Wokwi.
 
 Si falla, comprobar acceso saliente TCP 1883 en la red/VPN/firewall. También puede
 fallar el servicio público. No abrir puertos entrantes en el router.
