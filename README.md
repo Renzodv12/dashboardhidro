@@ -386,3 +386,10 @@ Los paquetes de herramientas no son necesarios para ejecutar el prototipo.
 Las fases se implementaron incrementalmente sobre la base inicial, verificando
 almacenamiento, simulación, MQTT, consultas, alertas, PID, visión y autenticación.
 La validación sobre hardware y la campaña experimental de la tesis siguen pendientes.
+
+## Experimento ML opcional con HydroGrowNet
+
+El entrenamiento reproducible, la evaluación por experimentos separados y sus
+limitaciones están en [docs/ml/README.md](docs/ml/README.md). Es una regresión
+exploratoria del día relativo del experimento a partir de imágenes segmentadas;
+no es diagnóstico ni modifica el PID o la visión OpenCV del panel.

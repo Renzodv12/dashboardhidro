@@ -1,0 +1,37 @@
+{
+  "dataset": "g6cm3v3wdp",
+  "version": 3,
+  "license": "CC BY 4.0",
+  "files": [
+    {
+      "filename": "Data Composition.docx",
+      "size": 16431,
+      "sha256_archive": "d7398a91f23cea90e901b9deab4a56835fb8bf88a65a3e93a13d0301e471b268",
+      "download_url": "https://data.mendeley.com/public-files/datasets/g6cm3v3wdp/files/68022dc1-6ae6-4747-b5c0-c3446d97e261/file_downloaded"
+    },
+    {
+      "filename": "Data Composition.pdf",
+      "size": 68641,
+      "sha256_archive": "6966f088af154ba34534c76118db31a724949016c83a79f5ae26af4dd4543d6f",
+      "download_url": "https://data.mendeley.com/public-files/datasets/g6cm3v3wdp/files/09456ecd-1b34-48a5-a78a-bde61df9f99f/file_downloaded"
+    },
+    {
+      "filename": "Month1.zip",
+      "size": 2669152598,
+      "sha256_archive": "3958998761c6d636621258b92a6a69859b7ebfe3bda094aba4a38c5b78a604be",
+      "download_url": "https://data.mendeley.com/public-files/datasets/g6cm3v3wdp/files/e7261568-6b98-4865-8d48-ef23aa4f20a1/file_downloaded"
+    },
+    {
+      "filename": "Month2.zip",
+      "size": 934410264,
+      "sha256_archive": "09aedf975180e89e9fd9b22605d2122b5881775db69289257861845dfa7aef34",
+      "download_url": "https://data.mendeley.com/public-files/datasets/g6cm3v3wdp/files/bf3b3ce9-487d-417b-9a1b-c134edf43a2a/file_downloaded"
+    },
+    {
+      "filename": "Month3.zip",
+      "size": 936597805,
+      "sha256_archive": "679c4badfd08ba9362c71cf2b30317411df1ce8185c585a53371890e17bcb325",
+      "download_url": "https://data.mendeley.com/public-files/datasets/g6cm3v3wdp/files/f4096fe4-72a5-41fe-b69c-ae7d8d6db52b/file_downloaded"
+    }
+  ]
+}

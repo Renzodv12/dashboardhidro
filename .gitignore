@@ -16,3 +16,6 @@ data/processed/*
 firmware/esp32/hidroponia_config.h
 firmware/esp32/.pio/
 data/backups/
+
+# Datasets descargados y modelos generados; evidencia pequeña en docs/ml
+data/ml/
