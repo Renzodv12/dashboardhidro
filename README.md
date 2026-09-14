@@ -393,3 +393,10 @@ El entrenamiento reproducible, la evaluación por experimentos separados y sus
 limitaciones están en [docs/ml/README.md](docs/ml/README.md). Es una regresión
 exploratoria del día relativo del experimento a partir de imágenes segmentadas;
 no es diagnóstico ni modifica el PID o la visión OpenCV del panel.
+
+## Respaldo y configuración para compartir por Git
+
+Usar [`.env.git.example`](.env.git.example) como plantilla sin credenciales y
+seguir [la guía de restauración](backups/shared/README.md). Las exportaciones
+compartibles contienen telemetría simulada sanitizada; las copias completas
+privadas permanecen en `data/backups/`, fuera de Git.

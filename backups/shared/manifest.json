@@ -1,0 +1,20 @@
+{
+  "created_at_utc": "20260914T225950761496Z",
+  "kind": "sanitized_simulated_telemetry",
+  "backups": [
+    {
+      "profile": "local",
+      "file": "local.sql.gz",
+      "readings": 8514,
+      "sha256": "f0b2720091fc5dcd0be8ef9b2965908462490820e11c1513b9c926b777e66f4f",
+      "bytes": 235085
+    },
+    {
+      "profile": "wokwi",
+      "file": "wokwi.sql.gz",
+      "readings": 10646,
+      "sha256": "c433558c50c09681acf080d4ba1022f257c6d831b558836cdad4cb982a43873b",
+      "bytes": 293460
+    }
+  ]
+}
