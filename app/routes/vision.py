@@ -55,3 +55,61 @@ def ml_evidence(name):
     if not path.is_file():
         abort(404)
     return send_file(path,as_attachment=name!='evaluation.png',download_name=name)
+
+
+def _ml_samples():
+    import csv
+    import json
+    root=Path(current_app.root_path).parent
+    try:
+        manifest=json.loads((root/'docs/ml/sample-manifest.json').read_text())
+        with (root/'docs/ml/predictions.csv').open() as stream:
+            predictions={(r['experiment'],r['member'],r['sha256']):r for r in csv.DictReader(stream)}
+    except FileNotFoundError:
+        abort(404,description='Muestra del entrenamiento no disponible')
+    samples=[]
+    for row in manifest:
+        prediction=predictions.get((row['experiment'],row['member'],row['sha256']))
+        if prediction is None:
+            continue
+        # El identificador se calcula; nunca se sirve una ruta enviada por el cliente.
+        import hashlib
+        identifier=hashlib.sha256((row['experiment']+'/'+row['member']).encode()).hexdigest()
+        target=float(prediction['target_day'])
+        predicted=float(prediction['predicted_day'])
+        samples.append(dict(id=identifier,sha256=row['sha256'],experiment=row['experiment'],
+            date=row['date'],filename=Path(row['member']).name,split=prediction['split'],
+            target_day=target,predicted_day=predicted,error_days=abs(predicted-target),
+            available=(root/'data/ml/hydrogrow/images'/f'{identifier}.png').is_file()))
+    return sorted(samples,key=lambda s:(s['experiment'],s['date'],s['filename']))
+
+
+@bp.get('/ml/samples')
+def ml_samples():
+    split=request.args.get('split','test')
+    if split not in {'train','validation','test'}:
+        abort(400,description='Conjunto inválido')
+    try:
+        page=int(request.args.get('page','1'))
+    except ValueError:
+        abort(400,description='Página inválida')
+    rows=[row for row in _ml_samples() if row['split']==split]
+    pages=max(1,(len(rows)+11)//12)
+    if not 1<=page<=pages:
+        abort(400,description='Página fuera de rango')
+    return jsonify(items=rows[(page-1)*12:page*12],page=page,pages=pages,total=len(rows))
+
+
+@bp.get('/ml/sample/<identifier>')
+def ml_sample_image(identifier):
+    import hashlib
+    import re
+    if not re.fullmatch('[a-f0-9]{64}',identifier):
+        abort(404)
+    sample=next((s for s in _ml_samples() if s['id']==identifier),None)
+    if sample is None or not sample['available']:
+        abort(404,description='Imagen del dataset no disponible en esta instalación')
+    path=Path(current_app.root_path).parent/'data/ml/hydrogrow/images'/f'{identifier}.png'
+    if hashlib.sha256(path.read_bytes()).hexdigest()!=sample['sha256']:
+        abort(409,description='La imagen no coincide con la muestra utilizada al entrenar')
+    return send_file(path,mimetype='image/png')

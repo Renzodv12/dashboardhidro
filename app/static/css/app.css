@@ -88,3 +88,17 @@ a { color:var(--accent); }
 #ml-figure figcaption { font-size:12px; margin-top:10px; }
 #ml-tests .heading { margin-bottom:16px; }
 #ml-title { margin-bottom:0; }
+
+.ml-gallery-section { margin:28px 0; padding-top:24px; border-top:1px solid var(--line); }
+.ml-gallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.ml-sample { padding:0; overflow:hidden; }
+.ml-sample img { width:100%; height:auto; aspect-ratio:4/3; object-fit:contain; background:#000; margin:0; border-radius:0; }
+.ml-sample-info { padding:16px; }
+.ml-sample h4 { font-size:13px; font-weight:600; }
+.ml-filename { font-size:11px; overflow-wrap:anywhere; }
+.ml-sample-values { display:grid; grid-template-columns:1fr auto; gap:6px 12px; margin:0; font-size:12px; }
+.ml-sample-values dt { font-weight:400; color:var(--muted); }
+.ml-sample-values dd { margin:0; font-variant-numeric:tabular-nums; }
+.ml-pagination { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:20px; }
+@media(max-width:900px) { .ml-gallery { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:540px) { .ml-gallery { grid-template-columns:1fr; } }

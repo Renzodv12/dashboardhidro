@@ -138,6 +138,18 @@ def main():
                             page.wait_for_selector('#ml-metrics article')
                             assert page.locator('#ml-metrics article').count()==3
                             assert 'Precisión insuficiente' in page.locator('#ml-status').inner_text()
+                            page.wait_for_selector('#ml-gallery article')
+                            assert page.locator('#ml-gallery article').count()==12
+                            assert '192 imágenes' in page.locator('#ml-gallery-status').inner_text()
+                            first_image=page.locator('#ml-gallery img').first
+                            first_image.scroll_into_view_if_needed()
+                            page.wait_for_function("document.querySelector('#ml-gallery img').naturalWidth > 0")
+                            page.locator('#ml-next').click()
+                            page.wait_for_function("document.querySelector('#ml-page').textContent==='Página 2 de 16'")
+                            page.locator('#ml-split').select_option('train')
+                            page.wait_for_function("document.querySelector('#ml-gallery-status').textContent.startsWith('204 imágenes')")
+                            page.locator('#ml-split').select_option('test')
+                            page.wait_for_function("document.querySelector('#ml-gallery-status').textContent.startsWith('192 imágenes')")
                             page.locator('#ml-figure').scroll_into_view_if_needed()
                             page.wait_for_function("document.querySelector('#ml-figure img').naturalWidth > 0")
                             for width,height in [(1440,1000),(768,1024),(390,844)]:

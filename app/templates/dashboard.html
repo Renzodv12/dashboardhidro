@@ -28,6 +28,14 @@
   <div id="ml-metrics" class="grid"></div>
   <details class="ml-details"><summary>Comparar entrenamiento, validación y prueba</summary><div id="ml-splits"></div></details>
   <figure id="ml-figure" hidden><img src="/api/vision/ml/evidence/evaluation.png" alt="Evaluación de HydroGrowNet: predicciones frente al día observado y error por día del tercer experimento." loading="lazy"><figcaption class="note">Experimento reservado para prueba. La línea discontinua del primer gráfico representa una predicción exacta.</figcaption></figure>
+  <section class="ml-gallery-section" aria-labelledby="ml-gallery-title">
+    <div class="heading"><div><h3 id="ml-gallery-title">Imágenes utilizadas en el entrenamiento y las pruebas</h3><p class="note">Imágenes originales del dataset, ya segmentadas por sus autores. El día registrado es relativo al inicio de cada experimento.</p></div>
+      <label for="ml-split">Conjunto<select id="ml-split" class="form-select"><option value="test">Prueba reservada · Month3</option><option value="validation">Validación · Month2</option><option value="train">Entrenamiento · Month1</option></select></label>
+    </div>
+    <p id="ml-gallery-status" class="note" role="status">Cargando imágenes…</p>
+    <div id="ml-gallery" class="ml-gallery" aria-label="Muestra de imágenes del dataset"></div>
+    <div class="ml-pagination"><button id="ml-prev" class="btn btn-outline-secondary" type="button" disabled>Anterior</button><span id="ml-page" class="note"></span><button id="ml-next" class="btn btn-outline-secondary" type="button" disabled>Siguiente</button></div>
+  </section>
   <div class="actions"><a class="btn btn-outline-secondary" href="/api/vision/ml/evidence/RESULTADOS.md">Descargar informe</a><a class="btn btn-outline-secondary" href="/api/vision/ml/evidence/predictions.csv">Descargar predicciones CSV</a><a class="btn btn-outline-secondary" href="https://data.mendeley.com/datasets/g6cm3v3wdp/3" target="_blank" rel="noopener noreferrer">Dataset original ↗</a></div>
   <p class="note mt-3 mb-0">Resultados de una muestra del dataset, independientes de tus capturas y de los sensores Wokwi. Este modelo no controla actuadores. Datos: Shalash, Hassan, Metwalli y Elhefny (2025), CC BY 4.0.</p>
 </section>

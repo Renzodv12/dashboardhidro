@@ -94,3 +94,18 @@ es exploratoria, **no diagnóstico agronómico**, no certifica edad ni madurez y
 se conecta a actuadores. El panel muestra únicamente evidencias guardadas, sin ejecutar este modelo sobre
 capturas del usuario. Antes de habilitar inferencia operativa habría que definir un objetivo
 agronómico medido y validarlo con capturas propias y anotaciones independientes.
+
+## Galería en Visión
+
+El apartado experimental muestra las imágenes de los tres conjuntos, paginadas
+de 12 en 12, junto con fecha, día relativo registrado, predicción y error absoluto.
+Se abre por defecto la prueba reservada (Month3). Las imágenes se sirven solamente
+a usuarios autenticados, desde la muestra del manifiesto y verificando SHA-256.
+Se conservan sus píxeles originales, incluido el fondo negro de la segmentación
+del autor. No son fotos del cultivo local.
+
+Los PNG originales permanecen en `data/ml/hydrogrow/images`, excluidos de Git.
+En otra instalación, ejecutar el descargador documentado arriba para recuperar
+la muestra; sin esos archivos la galería indica que las imágenes no están
+disponibles. La captura `dashboard-vision.png` incluye ejemplos atribuidos al
+dataset CC BY 4.0 descrito en este documento.

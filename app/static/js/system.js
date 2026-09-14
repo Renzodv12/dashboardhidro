@@ -84,6 +84,37 @@ async function visions() {
   if($('vision-summary')) { $('vision-summary').textContent=data?`${data.coverage.toFixed(1)}% cobertura verde · ${date(data.timestamp)}`:'Sin análisis'; if(data) {const img=document.createElement('img');img.src=`/api/vision/image/${data.processed_image}`;img.alt='Última segmentación vegetal';$('vision-summary').append(img);} }
   if($('vision-list')) { const rows=await api('/api/vision'); $('vision-list').replaceChildren();rows.forEach(r=>{const card=node('article','');const img=document.createElement('img');img.src=`/api/vision/image/${r.processed_image}`;img.alt='Segmentación de '+r.filename;card.append(img,node('h3',`${r.coverage.toFixed(2)}% verde`),node('p',`${r.filename} · ${date(r.timestamp)}`),node('small',r.observations));$('vision-list').append(card);}); }
 }
+let mlPage=1, mlRequest=0;
+async function mlGallery(page=1) {
+  if(!$('ml-gallery')) return;
+  const request=++mlRequest;
+  $('ml-prev').disabled=true; $('ml-next').disabled=true;
+  $('ml-gallery-status').textContent='Cargando imágenes…';
+  $('ml-gallery').replaceChildren(); $('ml-page').textContent='';
+  try {
+    const data=await api(`/api/vision/ml/samples?split=${$('ml-split').value}&page=${page}`);
+    if(request!==mlRequest) return;
+    mlPage=data.page;
+    const number=value=>Number(value).toLocaleString('es',{maximumFractionDigits:2});
+    for(const sample of data.items) {
+      const card=node('article','','ml-sample');
+      if(sample.available) {
+        const link=document.createElement('a'); link.href=`/api/vision/ml/sample/${sample.id}`; link.target='_blank'; link.rel='noopener'; link.setAttribute('aria-label',`Abrir imagen ${sample.filename}`);
+        const img=document.createElement('img'); img.src=link.href; img.alt=`Lechuga segmentada de ${sample.experiment}, captura ${sample.date}, día relativo ${sample.target_day}`; img.loading='lazy'; img.width=640; img.height=480;
+        img.onerror=()=>link.replaceWith(node('p','Imagen no disponible o con integridad inválida.','note'));
+        link.append(img); card.append(link);
+      } else card.append(node('p','Imagen no disponible en esta instalación.','note'));
+      const info=node('div','','ml-sample-info');
+      info.append(node('h4',`${sample.date} · ${sample.experiment}`),node('p',sample.filename,'ml-filename'));
+      const values=node('dl','','ml-sample-values');
+      for(const [label,value] of [['Día registrado',number(sample.target_day)],['Día estimado',number(sample.predicted_day)],['Error absoluto',`${number(sample.error_days)} días`]]) values.append(node('dt',label),node('dd',value));
+      info.append(values); card.append(info); $('ml-gallery').append(card);
+    }
+    $('ml-gallery-status').textContent=`${data.total} imágenes en este conjunto. Mostrando ${(data.page-1)*12+1}–${Math.min(data.page*12,data.total)}. Abrí una imagen para verla completa.`;
+    $('ml-page').textContent=`Página ${data.page} de ${data.pages}`;
+    $('ml-prev').disabled=data.page<=1; $('ml-next').disabled=data.page>=data.pages;
+  } catch(error) { if(request===mlRequest) $('ml-gallery-status').textContent='No se pudo cargar la muestra: '+error.message; }
+}
 async function mlReport() {
   if(!$('ml-tests')) return;
   try {
@@ -122,7 +153,8 @@ async function refresh() {try{const state=await api('/api/health');$('connection
   button('auto','/api/control/mode',{mode:'automatic'});button('stop','/api/control/manual',{output:0});button('emergency','/api/control/emergency',{});button('reset','/api/control/reset',{});button('webcam','/api/vision/capture',{},visions);
   if($('backup')) $('backup').onclick=async()=>{try{const response=await fetch('/api/backup',{method:'POST',headers:{'X-CSRF-Token':csrf()}});if(!response.ok)throw new Error('Error al crear respaldo');const a=document.createElement('a');a.href=URL.createObjectURL(await response.blob());a.download='hidroponia-backup.sqlite3';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}catch(e){feedback(e.message,true);}};
   if($('history-filter')) $('history-filter').onsubmit=e=>{e.preventDefault();histories().catch(e=>feedback(e.message,true));};
+  if($('ml-split')) { $('ml-split').onchange=()=>mlGallery(1); $('ml-prev').onclick=()=>mlGallery(mlPage-1); $('ml-next').onclick=()=>mlGallery(mlPage+1); }
   if($('alert-filter')) $('alert-filter').onchange=()=>alerts().catch(e=>feedback(e.message,true));
-  try { if($('image-files')) (await api('/api/vision/files')).forEach(f=>{const o=node('option',f);o.value=f;$('image-files').append(o);});await refresh();await controlStatus(true);await histories();await visions();await mlReport();await adminPages(); } catch(e){feedback(e.message,true);}
+  try { if($('image-files')) (await api('/api/vision/files')).forEach(f=>{const o=node('option',f);o.value=f;$('image-files').append(o);});await refresh();await controlStatus(true);await histories();await visions();await mlReport();await mlGallery();await adminPages(); } catch(e){feedback(e.message,true);}
   setInterval(refresh,2000);if($('charts'))setInterval(()=>histories().catch(e=>feedback(e.message,true)),10000);
 })();
