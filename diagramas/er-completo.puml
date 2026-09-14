@@ -1,0 +1,170 @@
+@startuml er-completo
+title Modelo entidad relacion completo - Sistema hidroponico
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F3A3F
+  ArrowColor #2F3A3F
+}
+
+entity "schema_migrations" as schema_migrations {
+  * version : INTEGER <<PK>>
+  --
+  description : TEXT
+  applied_at : TEXT
+}
+
+entity "users" as users {
+  * id : INTEGER <<PK>>
+  --
+  username : TEXT <<UQ>>
+  password_hash : TEXT
+  role : TEXT
+  active : INTEGER
+  created_at : TEXT
+}
+
+entity "sensor_types" as sensor_types {
+  * id : INTEGER <<PK>>
+  --
+  variable : TEXT <<UQ>>
+  label : TEXT
+  unit : TEXT
+  physical_min : REAL
+  physical_max : REAL
+  minimum : REAL
+  maximum : REAL
+}
+
+entity "devices" as devices {
+  * id : TEXT <<PK>>
+  --
+  source : TEXT
+  last_seen : TEXT
+}
+
+entity "sensor_readings" as sensor_readings {
+  * id : INTEGER <<PK>>
+  --
+  sensor_type_id : INTEGER <<FK>>
+  device_id : TEXT <<FK>>
+  message_id : TEXT
+  value : REAL
+  measured_at : TEXT
+  received_at : TEXT
+  stored_at : TEXT
+  transport_ms : REAL
+  storage_ms : REAL
+  --
+  UNIQUE(device_id, message_id)
+}
+
+entity "alerts" as alerts {
+  * id : INTEGER <<PK>>
+  --
+  sensor_type_id : INTEGER <<FK>>
+  device_id : TEXT <<FK>>
+  reading_id : INTEGER <<FK>>
+  condition : TEXT
+  severity : TEXT
+  message : TEXT
+  opened_at : TEXT
+  resolved_at : TEXT
+  acknowledged_at : TEXT
+  response_ms : REAL
+}
+
+entity "system_parameters" as system_parameters {
+  * key : TEXT <<PK>>
+  --
+  value_json : TEXT
+  updated_at : TEXT
+}
+
+entity "actuators" as actuators {
+  * id : INTEGER <<PK>>
+  --
+  name : TEXT <<UQ>>
+  device_id : TEXT
+  requested_output : REAL
+  reported_output : REAL
+  updated_at : TEXT
+  reported_at : TEXT
+}
+
+entity "control_events" as control_events {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  reading_id : INTEGER <<FK>>
+  mode : TEXT
+  setpoint : REAL
+  measured : REAL
+  error : REAL
+  output : REAL
+  action : TEXT
+  reason : TEXT
+}
+
+entity "visual_analysis" as visual_analysis {
+  * id : INTEGER <<PK>>
+  --
+  filename : TEXT
+  timestamp : TEXT
+  green_area : INTEGER
+  coverage : REAL
+  processed_image : TEXT
+  observations : TEXT
+  roi_json : TEXT
+}
+
+entity "audit_log" as audit_log {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  user_id : INTEGER <<FK>>
+  action : TEXT
+  details : TEXT
+}
+
+entity "web_metrics" as web_metrics {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  path : TEXT
+  status : INTEGER
+  duration_ms : REAL
+}
+
+entity "service_samples" as service_samples {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  mqtt_connected : INTEGER
+  sensor_fresh : INTEGER
+}
+
+sensor_types ||--o{ sensor_readings : clasifica
+devices ||--o{ sensor_readings : emite
+sensor_types ||--o{ alerts : evalua
+devices ||--o{ alerts : origina
+sensor_readings ||--o{ alerts : dispara
+sensor_readings ||--o{ control_events : alimenta
+users ||--o{ audit_log : registra
+
+note right of actuators
+  device_id se usa como enlace operativo
+  con el dispositivo, pero el esquema actual
+  no declara una clave foranea formal.
+end note
+
+note bottom of system_parameters
+  Guarda configuracion dinamica en JSON
+  por clave, por ejemplo parametros PID.
+end note
+
+@enduml

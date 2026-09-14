@@ -1,0 +1,110 @@
+@startuml er-monitoreo-control
+title ER - Monitoreo, alertas y control PID
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F3A3F
+  ArrowColor #2F3A3F
+}
+
+entity "sensor_types" as sensor_types {
+  * id : INTEGER <<PK>>
+  --
+  variable : TEXT <<UQ>>
+  label : TEXT
+  unit : TEXT
+  physical_min : REAL
+  physical_max : REAL
+  minimum : REAL
+  maximum : REAL
+}
+
+entity "devices" as devices {
+  * id : TEXT <<PK>>
+  --
+  source : TEXT
+  last_seen : TEXT
+}
+
+entity "sensor_readings" as sensor_readings {
+  * id : INTEGER <<PK>>
+  --
+  sensor_type_id : INTEGER <<FK>>
+  device_id : TEXT <<FK>>
+  message_id : TEXT
+  value : REAL
+  measured_at : TEXT
+  received_at : TEXT
+  stored_at : TEXT
+  transport_ms : REAL
+  storage_ms : REAL
+}
+
+entity "alerts" as alerts {
+  * id : INTEGER <<PK>>
+  --
+  sensor_type_id : INTEGER <<FK>>
+  device_id : TEXT <<FK>>
+  reading_id : INTEGER <<FK>>
+  condition : TEXT
+  severity : TEXT
+  message : TEXT
+  opened_at : TEXT
+  resolved_at : TEXT
+  acknowledged_at : TEXT
+  response_ms : REAL
+}
+
+entity "system_parameters" as system_parameters {
+  * key : TEXT <<PK>>
+  --
+  value_json : TEXT
+  updated_at : TEXT
+}
+
+entity "actuators" as actuators {
+  * id : INTEGER <<PK>>
+  --
+  name : TEXT <<UQ>>
+  device_id : TEXT
+  requested_output : REAL
+  reported_output : REAL
+  updated_at : TEXT
+  reported_at : TEXT
+}
+
+entity "control_events" as control_events {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  reading_id : INTEGER <<FK>>
+  mode : TEXT
+  setpoint : REAL
+  measured : REAL
+  error : REAL
+  output : REAL
+  action : TEXT
+  reason : TEXT
+}
+
+sensor_types ||--o{ sensor_readings : tipo
+devices ||--o{ sensor_readings : dispositivo
+sensor_readings ||--o{ alerts : genera
+sensor_types ||--o{ alerts : umbral
+devices ||--o{ alerts : origen
+sensor_readings ||--o{ control_events : referencia
+
+actuators .. devices : device_id operativo
+system_parameters .. control_events : parametros PID
+
+note bottom of sensor_types
+  Variables iniciales:
+  ph, tds, temperatura_agua,
+  temperatura_ambiente, humedad y nivel.
+end note
+
+@enduml

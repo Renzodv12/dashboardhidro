@@ -1,0 +1,87 @@
+@startuml er-seguridad-evidencias
+title ER - Seguridad, auditoria y evidencias
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F3A3F
+  ArrowColor #2F3A3F
+}
+
+entity "users" as users {
+  * id : INTEGER <<PK>>
+  --
+  username : TEXT <<UQ>>
+  password_hash : TEXT
+  role : TEXT
+  active : INTEGER
+  created_at : TEXT
+}
+
+entity "audit_log" as audit_log {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  user_id : INTEGER <<FK>>
+  action : TEXT
+  details : TEXT
+}
+
+entity "visual_analysis" as visual_analysis {
+  * id : INTEGER <<PK>>
+  --
+  filename : TEXT
+  timestamp : TEXT
+  green_area : INTEGER
+  coverage : REAL
+  processed_image : TEXT
+  observations : TEXT
+  roi_json : TEXT
+}
+
+entity "web_metrics" as web_metrics {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  path : TEXT
+  status : INTEGER
+  duration_ms : REAL
+}
+
+entity "service_samples" as service_samples {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  mqtt_connected : INTEGER
+  sensor_fresh : INTEGER
+}
+
+entity "schema_migrations" as schema_migrations {
+  * version : INTEGER <<PK>>
+  --
+  description : TEXT
+  applied_at : TEXT
+}
+
+users ||--o{ audit_log : usuario
+
+note right of visual_analysis
+  Evidencias generadas por OpenCV:
+  imagen procesada, cobertura vegetal
+  y ROI usado para el analisis.
+end note
+
+note bottom of web_metrics
+  Metricas tecnicas para tiempos de
+  respuesta web y validacion operativa.
+end note
+
+note bottom of service_samples
+  Muestras del estado MQTT y frescura
+  de sensores durante ejecucion.
+end note
+
+@enduml
