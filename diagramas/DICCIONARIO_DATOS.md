@@ -17,6 +17,9 @@ sistema hidroponico. La fuente tecnica del esquema esta en `app/schema.sql` y
 
 Registra las migraciones aplicadas a la base de datos.
 
+Ejemplo de uso: permite saber que ya se aplico la version `2`, correspondiente
+al modelo hidroponico y sus evidencias, y evita repetir cambios estructurales.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `version` | INTEGER | PK | Numero de version de la migracion aplicada. |
@@ -26,6 +29,9 @@ Registra las migraciones aplicadas a la base de datos.
 ## users
 
 Guarda las cuentas locales del sistema y su rol de acceso.
+
+Ejemplo de uso: almacena un usuario administrador que puede configurar el PID y
+un operador que solo consulta monitoreo, historicos, alertas y vision.
 
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
@@ -39,6 +45,9 @@ Guarda las cuentas locales del sistema y su rol de acceso.
 ## sensor_types
 
 Define las variables medidas y sus rangos fisicos y operativos.
+
+Ejemplo de uso: define que el pH trabaja entre `5.5` y `6.5`; si una lectura
+queda fuera de ese rango, el sistema puede generar una alerta.
 
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
@@ -68,6 +77,9 @@ Valores iniciales:
 
 Identifica el origen de las lecturas recibidas por MQTT o simulacion.
 
+Ejemplo de uso: diferencia si las lecturas vienen del simulador local, de Wokwi
+o de un futuro ESP32 fisico conectado al prototipo.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `id` | TEXT | PK | Identificador del dispositivo o simulador. |
@@ -77,6 +89,9 @@ Identifica el origen de las lecturas recibidas por MQTT o simulacion.
 ## sensor_readings
 
 Almacena cada medicion recibida desde un dispositivo.
+
+Ejemplo de uso: guarda que el dispositivo `wokwi-demo-1` envio una lectura de
+pH `6.12`, junto con la hora medida, recibida y almacenada.
 
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
@@ -100,6 +115,9 @@ variable y fecha.
 
 Registra alertas abiertas o historicas cuando una lectura queda fuera de rango.
 
+Ejemplo de uso: si el nivel del deposito baja de `25%`, se registra una alerta
+activa para que el operador pueda verla en el dashboard.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `id` | INTEGER | PK | Identificador interno de la alerta. |
@@ -121,6 +139,9 @@ Indice unico parcial: `alerts_open(sensor_type_id, device_id, condition)` cuando
 
 Guarda configuracion dinamica del sistema.
 
+Ejemplo de uso: conserva valores ajustables del controlador PID o limites
+operativos sin modificar el codigo fuente de la aplicacion.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `key` | TEXT | PK | Nombre de la configuracion. |
@@ -132,6 +153,9 @@ Uso esperado: parametros PID, limites operativos y configuracion editable.
 ## actuators
 
 Representa actuadores logicos controlados por el sistema.
+
+Ejemplo de uso: registra la salida solicitada al actuador `ph_minus` cuando el
+controlador necesita corregir un pH alto.
 
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
@@ -148,6 +172,9 @@ Valores iniciales: `ph_plus`, `ph_minus`, `nutrientes`, `agua`.
 ## control_events
 
 Registra decisiones del controlador PID o acciones manuales de control.
+
+Ejemplo de uso: deja evidencia de que, ante una lectura de pH, el controlador
+calculo una salida y genero una accion correctiva con su motivo.
 
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
@@ -166,6 +193,9 @@ Registra decisiones del controlador PID o acciones manuales de control.
 
 Guarda resultados de analisis de imagen por OpenCV.
 
+Ejemplo de uso: almacena el porcentaje de cobertura verde detectado en una
+imagen de prueba para comparar visualmente el crecimiento de las plantas.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `id` | INTEGER | PK | Identificador interno del analisis. |
@@ -181,6 +211,9 @@ Guarda resultados de analisis de imagen por OpenCV.
 
 Registra acciones relevantes ejecutadas por usuarios.
 
+Ejemplo de uso: registra que un administrador creo un usuario o cambio un
+parametro del sistema, dejando trazabilidad para revision posterior.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `id` | INTEGER | PK | Identificador interno del registro. |
@@ -193,6 +226,9 @@ Registra acciones relevantes ejecutadas por usuarios.
 
 Almacena mediciones tecnicas de solicitudes web.
 
+Ejemplo de uso: guarda cuanto tardo en responder `/dashboard` para revisar si
+la interfaz cumple los tiempos esperados de uso.
+
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
 | `id` | INTEGER | PK | Identificador interno de la muestra. |
@@ -204,6 +240,9 @@ Almacena mediciones tecnicas de solicitudes web.
 ## service_samples
 
 Guarda muestras periodicas del estado operativo del servicio.
+
+Ejemplo de uso: registra si MQTT estaba conectado y si los sensores tenian datos
+recientes durante una prueba del prototipo.
 
 | Columna | Tipo | Restricciones | Descripcion |
 | --- | --- | --- | --- |
