@@ -10,6 +10,8 @@ Archivos:
   alertas y control PID.
 - `er-seguridad-evidencias.puml`: vista enfocada en usuarios, auditoria,
   vision, metricas y respaldos operativos.
+- `DICCIONARIO_DATOS.md`: explicacion de cada tabla, columna, clave e indice
+  relevante del modelo.
 
 Para renderizar con PlantUML:
 
